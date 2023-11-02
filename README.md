@@ -3,7 +3,8 @@
 Simple app to display the GitHub Users filtered by usernames. Using Kotlin, Jetpack Compose, MVVM, Koin.
 
 
-![First Screen](scree1.png)
-![After getting filtered users from GitHub Rest API](scree2.png)
-![Showing the user details after clicking a user from the list](scree3.png)
-![Showing a simple error handling incase of no internet connection](scree4.png)
+<img src="scree1.png" alt="First Screen" width="300"/>
+<img src="scree2.png" alt="After getting filtered users from GitHub Rest API" width="300"/>
+<img src="scree3.png" alt="Showing the user details after clicking a user from the list" width="300"/>
+<img src="scree4.png" alt="Showing a simple error handling incase of no internet connection" width="300"/>
+
