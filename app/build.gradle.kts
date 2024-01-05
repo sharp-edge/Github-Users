@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("jacoco")
 }
 
 android {
@@ -47,7 +48,26 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testCoverage {
+
+        jacocoVersion = "0.8.7" // Check for the latest version compatible with your setup
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            // Any other unit test options you need
+        }
+    }
+
 }
+
+//sourceSets {
+//    val test by getting {
+//        java.srcDirs("src/test/kotlin", "src/test/java")
+//    }
+//}
 
 dependencies {
 
@@ -79,4 +99,138 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2") // Use the latest version
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
+
 }
+
+//tasks.withType<Test> {
+////    val testDebugUnitTest by existing(Test::class) {
+////        // Configure your unit test task if needed
+////    }
+//    useJUnitPlatform()
+//    extensions.configure(JacocoTaskExtension::class) {
+//        isEnabled = true
+//    }
+//
+//
+//    val jacocoTestReport = tasks.create("jacocoTestReport",JacocoReport::class) {
+//        dependsOn("testDebugUnitTest")
+//        group = "Reporting"
+//        description = "Generate Jacoco coverage reports"
+//
+//        reports {
+//            xml.required.set(true)
+//            html.required.set(true)
+//        }
+//
+//        val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug").apply {
+//            exclude("**/R.class")
+//            exclude("**/R$*.class")
+//            exclude("**/BuildConfig.*")
+//            exclude("**/Manifest*.*")
+//            exclude("**/androidx/lifecycle/*")
+//            // Exclude Retrofit related classes (such as Retrofit builders or converters)
+//            exclude("**/*Retrofit*")
+//            exclude("**/*Converter*")
+//        }
+//
+//        sourceDirectories.setFrom(files("src/main/kotlin", "src/main/java"))
+//        classDirectories.setFrom(debugTree)
+//        executionData.setFrom(fileTree(buildDir).include("/jacoco/testDebugUnitTest.exec"))
+//    }
+//}
+
+
+tasks.withType<Test> {
+    //useJUnitPlatform()
+    extensions.configure(JacocoTaskExtension::class) {
+        isEnabled = true
+    }
+
+//    violationRules {
+//        rule {
+//            limit {
+//                minimum = BigDecimal(0.62)
+//            }
+//        }
+//    }
+
+//    afterEvaluate {
+//        classDirectories.setFrom(files(classDirectories.files.map {
+//            fileTree(it).apply {
+//                exclude("com/generate/**")
+//            }
+//        }))
+//    }
+}
+
+
+
+
+// Make sure to check if the jacocoTestReport task already exists before creating a new one
+val jacocoTestReport = tasks.findByName("jacocoTestReport") ?: tasks.create("jacocoTestReport", JacocoReport::class.java) {
+
+    dependsOn("testDebugUnitTest")
+    group = "Reporting"
+    description = "Generate JaCoCo coverage reports"
+
+    doFirst {
+        println("Class files included in Jacoco report:")
+        classDirectories.asFileTree.files.forEach  { file ->
+            println(file)
+        }
+    }
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+
+    val kotlinClassesDir = fileTree("${buildDir}/tmp/kotlin-classes/debug").apply {
+            exclude("**/R.class")
+            exclude("**/R$*.class")
+            exclude("**/BuildConfig.*")
+            exclude("**/Manifest*.*")
+            exclude("**/androidx/lifecycle/*")
+            // Exclude Retrofit related classes (such as Retrofit builders or converters)
+            exclude("**/*Retrofit*")
+            exclude("**/*Converter*")
+        exclude("com/sharpedge/githubusers/ui/**")
+//        exclude("**/GitHubUserSearchScreenKt*.class")
+//        exclude("**/UserDetailScreenKt*.class")
+        exclude ("com/sharpedge/githubusers/**/*Activity.class")
+        exclude ("com/sharpedge/githubusers/**/*Fragment.class")
+        exclude ("com/sharpedge/githubusers/ui/**/*kt.class")
+        // Exclude any other class you consider should not be part of the coverage report
+    }
+
+    sourceDirectories.setFrom(files("src/main/kotlin", "src/main/java"))
+    classDirectories.setFrom(kotlinClassesDir)
+    executionData.setFrom(fileTree(buildDir).include("/jacoco/testDebugUnitTest.exec"))
+}
+
+
+//tasks.withType<JacocoReport> {
+//    afterEvaluate {
+//        classDirectories.setFrom(files(classDirectories.files.map {
+//            fileTree(it).apply {
+//                //exclude("com/generate/**")
+//                exclude("**/R.class")
+//                exclude("**/R$*.class")
+//                exclude("**/BuildConfig.*")
+//                exclude("**/Manifest*.*")
+//                exclude("**/androidx/lifecycle/*")
+//                // Exclude Retrofit related classes (such as Retrofit builders or converters)
+//                exclude("**/*Retrofit*")
+//                exclude("**/*Converter*")
+//                exclude ("com/sharpedge/githubusers/**/*Activity.class")
+//                exclude ("com/sharpedge/githubusers/**/*Fragment.class")
+//                exclude ("com/sharpedge/githubusers/ui/**/*kt.class")
+//            }
+//        }))
+//    }
+//}
+
